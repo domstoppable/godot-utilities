@@ -90,3 +90,37 @@ static func scroll_to_bottom(scroll_container, duration=1, play_now=true):
 static func date_string(timestamp):
 	var date_info = Time.get_date_dict_from_unix_time(timestamp)
 	return '%s %d, %d' % [MONTH_NAMES[date_info['month']], date_info['day'], date_info['year']]
+
+static func pivot_center(node, x_normal=0.5, y_normal=0.5, also_apply_after_resize=true):
+	node.pivot_offset[0] = node.size[0] * x_normal
+	node.pivot_offset[1] = node.size[1] * y_normal
+
+	if also_apply_after_resize:
+		if node.is_connected('resized', pivot_center):
+			node.resized.disconnect(pivot_center)
+
+		node.resized.connect(pivot_center.bind(node, x_normal, y_normal, false))
+
+static func fit_rect(source_size:Vector2, target_size:Vector2) -> Rect2 :
+	var source_ratio = source_size.x / source_size.y
+	var target_ratio = target_size.x / target_size.y
+
+	var result = Rect2(Vector2.ZERO, source_size)
+
+	if source_ratio > target_ratio:
+		result.size.x = target_size.x
+		result.size.y = source_size.y * (result.size.x / source_size.x)
+
+	else:
+		result.size.y = target_size.y
+		result.size.x = source_size.x * (result.size.y / source_size.y)
+
+	result.position = (target_size - result.size) / 2.0
+
+	return result
+
+static func get_rect_corner(rect:Rect2, corner_idx) -> Vector2:
+	var x_scalar = corner_idx % 2 == 1
+	var y_scalar = floor(corner_idx / 2)
+
+	return rect.position + rect.size*Vector2(x_scalar, y_scalar)
