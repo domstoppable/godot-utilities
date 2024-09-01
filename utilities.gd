@@ -1,5 +1,4 @@
-@tool
-class_name Utils extends EditorPlugin
+class_name Utils
 
 const MONTH_NAMES = [
 	"",
